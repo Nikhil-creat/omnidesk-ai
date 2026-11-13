@@ -1,0 +1,8 @@
+networks: {internal: {internal: true}, edge: {}}
+services:
+  nginx: {image: nginx:1.27-alpine, ports: ["80:80"], networks: [edge, internal], depends_on: [ai-engine]}
+  ai-engine: {build: ./ai-engine, environment: [INTERNAL_HMAC_SECRET], networks: [internal], read_only: true, user: "10001"}
+  postgres: {image: pgvector/pgvector:pg16, environment: {POSTGRES_PASSWORD: "${PG_PASSWORD}"}, volumes: ["pg:/var/lib/postgresql/data", "./db/init.sql:/docker-entrypoint-initdb.d/init.sql"], networks: [internal]}
+  redis: {image: "redis:7-alpine", command: "redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}", networks: [internal]}
+volumes: {pg: {}}
+# rails-web and rails-worker (Chatwoot fork) join the same internal network.
