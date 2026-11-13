@@ -1,3 +1,0 @@
-name: ci
-on: [push]
-jobs: {test: {runs-on: ubuntu-latest, steps: [{uses: actions/checkout@v4}, {run: "pip install fastapi pydantic pytest httpx && pytest -q tests"}, {run: "node -e \"require('./api/chat.js');require('./api/triage.js')\""}]}}
