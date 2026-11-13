@@ -45,4 +45,4 @@ const hits = new Map();
 function limited(req, res, max = 20) { const ip = (req.headers['x-forwarded-for'] || 'x').split(',')[0], n = Date.now(), h = (hits.get(ip + max) || []).filter(t => n - t < 6e4); h.push(n); hits.set(ip + max, h);
   if (h.length > max) { res.status(429).setHeader('Retry-After', '30').json({ error: 'Too many requests' }); return true; } return false; }
 async function ask(msgs) { for (const fn of [viaGroq, viaGemini]) { try { return await fn(msgs); } catch (e) { console.error(e.message); } } return null; }
-module.exports = { viaGroq, viaGemini, limited, ask };
+module.exports = { viaGroq, viaGemini, limited, ask, geminiModel };

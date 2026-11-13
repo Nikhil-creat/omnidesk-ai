@@ -4,6 +4,10 @@
 
 Open-source, self-hosted omnichannel AI support platform, modeled on Chatwoot, with agentic triage, hybrid RAG and CNN image inspection. This repo contains the **scroll-story landing site, a live Groq/Gemini AI gateway** and a **reference ai-engine + database stack**.
 
+## Full-stack (v3)
+Supabase (Auth + Postgres + pgvector + Realtime, RLS multi-tenancy) + Vercel serverless API + vanilla-JS agent dashboard at `/app/` + embeddable `widget.js`.
+1. Run `supabase/schema.sql` in the Supabase SQL editor. 2. Set the env vars in `.env.example` on Vercel. 3. Sign up at `/app/`, create a workspace, add knowledge, paste the widget snippet from Settings.
+
 ## Features
 - Scroll-driven cinematic landing page (vanilla JS, no libraries)
 - `/api/chat` and `/api/triage`: Groq first, Gemini fallback, **automatic model detection**, rules-based last resort

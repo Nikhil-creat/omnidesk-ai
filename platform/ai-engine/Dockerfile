@@ -1,5 +1,5 @@
 FROM python:3.11-slim
-RUN useradd -u 10001 app && pip install --no-cache-dir fastapi uvicorn pydantic
+RUN useradd -u 10001 app && pip install --no-cache-dir fastapi uvicorn pydantic onnxruntime pillow numpy
 COPY main.py /app/main.py
 USER app
 WORKDIR /app

@@ -22,3 +22,19 @@ def reply(m: Msg, x_signature: str = Header("")):
     # dense/sparse retrieval run in SQL scoped WHERE account_id = :id (see db/init.sql); rrf() merges, reranker picks top-5
     conf = 0.0  # no verified chunks wired in demo
     if conf < 0.75: return {"status": "open", "handoff": True, "reply": "I don't have verified information on that — let me connect you with a specialist."}
+
+# ---- Self-hosted CNN inspection: EfficientNet-B3 (ONNX). Place your fine-tuned model at VISION_MODEL_PATH. ----
+CLASSES = ["damaged_product", "error_screenshot", "receipt_invoice", "id_document", "UI_bug", "other"]
+class Img(BaseModel): image_b64: str
+@app.post("/v1/vision")
+def vision(i: Img):
+    import base64, io
+    path = os.getenv("VISION_MODEL_PATH", "")
+    if not path or not os.path.exists(path): raise HTTPException(503, "vision model not loaded")
+    import numpy as np, onnxruntime as ort
+    from PIL import Image
+    img = Image.open(io.BytesIO(base64.b64decode(i.image_b64))).convert("RGB").resize((224, 224))  # re-encode strips EXIF/GPS
+    x = ((np.asarray(img, dtype="float32") / 255 - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]).transpose(2, 0, 1)[None].astype("float32")
+    s = ort.InferenceSession(path); lg = s.run(None, {s.get_inputs()[0].name: x})[0][0]
+    p = np.exp(lg - lg.max()); p /= p.sum(); k = int(p.argmax())
+    return {"cnn_class": CLASSES[k], "confidence": float(p[k]), "defects": [], "extracted_text": "", "engine": "onnxruntime"}
